@@ -22,13 +22,21 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/appointments', appointmentRoutes)
 
-connectDB()
-  .then(() => {
+async function initializeServer() {
+  await connectDB()
+
+  if (process.env.VERCEL !== '1') {
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`)
     })
-  })
-  .catch((error) => {
-    console.error('Failed to connect to MongoDB:', error.message)
+  }
+}
+
+initializeServer().catch((error) => {
+  console.error('Failed to connect to MongoDB:', error.message)
+  if (process.env.VERCEL !== '1') {
     process.exit(1)
-  })
+  }
+})
+
+module.exports = app
